@@ -27,7 +27,7 @@ const restaurantSchema = new mongoose.Schema({
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
-RestaurantSchema.virtual('reservations', {
+restaurantSchema.virtual('reservations', {
   ref: 'Reservation',
   localField: '_id',
   foreignField: 'restaurant_id',

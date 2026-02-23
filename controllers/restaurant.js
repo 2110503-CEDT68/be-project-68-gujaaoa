@@ -13,7 +13,7 @@ exports.getRestaurants = async (req, res, next) => {
     next(err);
   }
 };
-exports.getRestaurant = async (req, res, next) => {
+exports.getRestaurantById = async (req, res, next) => {
   try {
     const restaurant = await Restaurant.findById(req.params.id);
 

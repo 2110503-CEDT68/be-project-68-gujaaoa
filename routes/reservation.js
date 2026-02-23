@@ -19,6 +19,6 @@ router.put('/:id', protect, authorize('user','admin'), updateReservation);
 router.delete('/:id', protect, authorize('user','admin'), deleteReservation);
 
 // admin
-router.get('/', protect, authorize('admin'), getAllReservations);
+router.get('/all', protect, authorize('admin'), getAllReservations);
 
 module.exports = router;
