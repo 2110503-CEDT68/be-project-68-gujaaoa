@@ -27,13 +27,19 @@ exports.protect = async (req, res, next) => {
 
     // 3️⃣ เอา user จาก DB
     req.user = await User.findById(decoded.id);
+    if (!req.user) {
+  return res.status(401).json({
+    success: false,
+    message: 'User no longer exists'
+  });
+}
 
     // 4️⃣ ผ่าน → ไปต่อ
     next();
   } catch (err) {
     return res.status(401).json({
       success: false,
-      message: 'Not authorize to access this route'
+      message: 'Invalid token'
     });
   }
 };
