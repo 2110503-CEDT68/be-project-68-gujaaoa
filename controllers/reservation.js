@@ -14,6 +14,19 @@ exports.createReservation = async (req, res, next) => {
         message: 'Restaurant not found'
       });
     }
+    
+    /// ตรวจว่าจองซ้ำไหม
+    const existed = await Reservation.findOne({
+    user_id: req.user.id,
+    restaurant_id,
+    date: new Date(date)
+    });
+    if (existed) {
+  return res.status(400).json({
+    success: false,
+    message: 'You already have a reservation for this restaurant on this date'
+  });
+}
 
     // จำกัดโต๊ะไม่เกิน 3
     if (table_count > 3) {
