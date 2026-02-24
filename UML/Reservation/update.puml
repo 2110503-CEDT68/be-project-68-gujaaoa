@@ -1,0 +1,47 @@
+@startuml
+title Update Reservation (PUT /api/v1/reservations/{id})
+
+participant "Client" as client
+participant "<<AuthMiddleware>>\nprotect" as middleware
+participant "<<Controller>>\nupdateReservation()" as controller
+participant "<<Model>>\nReservation" as model
+database "<<MongoDB>>\nreservations" as db
+
+client -> middleware : PUT /reservations/{id}
+activate middleware
+
+middleware -> controller : req.user
+activate controller
+
+controller -> model : findById(id)
+activate model
+model --> controller : reservation / null
+deactivate model
+
+alt reservation not found
+  controller --> client : 404 Not found
+else reservation exists
+  controller -> controller : check ownership / admin
+
+  alt not authorized
+    controller --> client : 403 Forbidden
+  else authorized
+    controller -> controller : validate table_count <= 3
+
+    alt invalid table_count
+      controller --> client : 400 Limit exceeded
+    else valid
+      controller -> model : findByIdAndUpdate()
+      activate model
+      model -> db : update document
+      db --> model : updated reservation
+      deactivate model
+
+      controller --> client : 200 OK
+    end
+  end
+end
+
+deactivate controller
+deactivate middleware
+@enduml
