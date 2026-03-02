@@ -1,5 +1,5 @@
 const User = require('../models/user');
-a
+
 // @desc    Register user
 // @route   POST /api/v1/auth/register
 // @access  Public

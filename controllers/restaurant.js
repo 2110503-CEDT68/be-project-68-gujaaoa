@@ -1,5 +1,5 @@
 const Restaurant = require('../models/restaurant');
-a
+
 exports.getRestaurants = async (req, res, next) => {
   try {
     const restaurants = await Restaurant.find();
