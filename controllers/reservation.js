@@ -6,29 +6,7 @@ exports.createReservation = async (req, res, next) => {
   try {
     const { restaurant_id, date, table_count } = req.body;
 
-    // ตรวจร้านว่ามีจริงไหม
-    const restaurant = await Restaurant.findById(restaurant_id);
-    if (!restaurant) {
-      return res.status(404).json({
-        success: false,
-        message: 'Restaurant not found'
-      });
-    }
-    
-    /// ตรวจว่าจองซ้ำไหม
-    const existed = await Reservation.findOne({
-    user_id: req.user.id,
-    restaurant_id,
-    date: new Date(date)
-    });
-    if (existed) {
-  return res.status(400).json({
-    success: false,
-    message: 'You already have a reservation for this restaurant on this date'
-  });
-}
-
-    // จำกัดโต๊ะไม่เกิน 3
+    // 1️⃣ validate table_count ก่อน (สำคัญที่สุด)
     if (table_count > 3) {
       return res.status(400).json({
         success: false,
@@ -36,10 +14,43 @@ exports.createReservation = async (req, res, next) => {
       });
     }
 
+    // 2️⃣ validate date
+    const reserveDate = new Date(date);
+    if (isNaN(reserveDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid date format'
+      });
+    }
+
+    // 3️⃣ ตรวจร้าน
+    const restaurant = await Restaurant.findById(restaurant_id);
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: 'Restaurant not found'
+      });
+    }
+
+    // 4️⃣ ตรวจจองซ้ำ
+    const existed = await Reservation.findOne({
+      user_id: req.user.id,
+      restaurant_id,
+      date: reserveDate
+    });
+
+    if (existed) {
+      return res.status(400).json({
+        success: false,
+        message: 'You already have a reservation for this restaurant on this date'
+      });
+    }
+
+    // 5️⃣ create
     const reservation = await Reservation.create({
       user_id: req.user.id,
       restaurant_id,
-      date,
+      date: reserveDate,
       table_count
     });
 
@@ -47,6 +58,7 @@ exports.createReservation = async (req, res, next) => {
       success: true,
       data: reservation
     });
+
   } catch (err) {
     next(err);
   }
